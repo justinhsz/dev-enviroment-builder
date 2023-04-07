@@ -1,0 +1,20 @@
+steps:
+- name: gcr.io/cloud-builders/docker
+  id: build image
+  entrypoint: bash
+  args:
+  - -c
+  - | 
+    docker build --tag="$_IMAGE_NAME" . \
+    && docker run "$_IMAGE_NAME" ls / > /dev/null \
+    && docker export "$(docker container ls -a | grep -i "$_IMAGE_NAME" | cut -d' ' -f1 | head -n1)" \
+    | zstd -5 > "$_IMAGE_NAME.tar.gz"
+
+artifacts:
+  objects:
+    location: $_STORAGE_PATH
+    paths:
+    - $_IMAGE_NAME.tar.gz
+
+options:
+  dynamic_substitutions: True
