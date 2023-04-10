@@ -5,7 +5,8 @@ steps:
   args:
   - -c
   - | 
-    docker build --tag="$_IMAGE_NAME" . \
+    apt -y install zstd \
+    && docker build --tag="$_IMAGE_NAME" . \
     && docker run "$_IMAGE_NAME" ls / > /dev/null \
     && docker export "$(docker container ls -a | grep -i "$_IMAGE_NAME" | cut -d' ' -f1 | head -n1)" \
     | zstd -5 > "$_IMAGE_NAME.tar.gz"
