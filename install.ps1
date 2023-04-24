@@ -14,18 +14,22 @@ if (-not $tarFilePath) {
     docker build -t $dockerImageName .
 
     $dockerContainerName = "wsl-import-container"
-    docker run --name $dockerContainerName $dockerImageName ls /
+    docker run --name $dockerContainerName $dockerImageName whoami
     
-    docker export $dockerContainerName > $tarFilePath
+    $tarFilePath = "$wslDistroName.tar"
+    docker export -o $tarFilePath $dockerContainerName
 
     docker rm $dockerContainerName
     docker rmi $dockerImageName
 }
 
+New-Item -ItemType Directory -Force -Path $wslTargetDir
+
 compact /c /q /s:$wslTargetDir
 
 wsl --import $wslDistroName $wslTargetDir $tarFilePath
 
-wsl -d $wslDistroName bash -ic utils\first-launch.sh %USERNAME%
+$lowercaseUsername = ${env:username}.ToLower()
+wsl -d $wslDistroName bash -c "utils/first-launch.sh $lowercaseUsername"
 
 wsl --terminate $wslDistroName

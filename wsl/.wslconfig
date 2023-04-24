@@ -1,0 +1,8 @@
+[wsl2]
+guiApplications=true
+nestedVirtualization=true
+vmIdleTimeout=43200000
+
+# Support cgroups v2
+# https://github.com/opencontainers/runc/blob/main/docs/cgroup-v2.md#configuring-delegation
+kernelCommandLine=systemd.unified_cgroup_hierarchy=1 systemd.delegate=yes

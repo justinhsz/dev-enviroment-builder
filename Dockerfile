@@ -11,6 +11,7 @@ RUN apt-get update \
     | tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null \
     && apt-get update \
     && apt-get -y install podman slirp4netns \
+    && ln -s /usr/bin/podman /usr/local/bin/docker \
     && echo "Install Snap" \
     && apt-get -y install snapd \
     && echo "Install Credential and secret required packages (Jetbrains Tool required)" \
@@ -25,11 +26,17 @@ RUN apt-get update \
     && deb=$(curl -w "%{filename_effective}" -LO https://github.com/neovim/neovim/releases/download/v0.8.3/nvim-linux64.deb) \
     && dpkg -i $deb && rm $deb && unset deb \
     && ln -s /usr/bin/nvim /usr/local/bin/vim \
+    && ln -s /usr/bin/nvim /usr/local/bin/vi \
     && apt-get -y install ripgrep \
+    && echo "Other development tools" \
+    && apt-get -y install wget \
     && echo "Clean up installation" \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
 # Enterprise
-COPY ./ca-certificates/* /usr/local/share/ca-certificates/
+COPY ./ca-certificates/. /usr/local/share/ca-certificates/
 RUN update-ca-certificates -f
+
+# Default wsl configurations
+COPY wsl/wsl.conf /etc/wsl.conf
