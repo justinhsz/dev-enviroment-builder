@@ -9,7 +9,7 @@ RUN update-ca-certificates -f \
     && apt-get -y install gpg lsb-release sudo wget curl crudini \
     && mkdir -p /dev-install-files/
 
-COPY --chmod=777 packages shells /dev-install-files/
+COPY --chmod=777 packages shells first-launch /dev-install-files/
 
 RUN echo "Start installing packages/shells..." \
     && for s in $(find /dev-install-files -name root-install.sh -type f -printf '%h\0%d\0%p\n' | sort -t '\0' -n | awk -F'\0' '{print $3}'); do "$s"; done \
