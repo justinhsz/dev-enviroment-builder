@@ -1,42 +1,29 @@
 FROM ubuntu:latest
 
-RUN apt-get update \
-    && echo "Install podman" \
-    && apt-get -y install gpg lsb-release curl \
-    && mkdir -p /etc/apt/keyrings \
-    && curl -fsSL https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/Release.key \
-    | gpg --dearmor \
-    | tee /etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg > /dev/null \
-    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/devel_kubic_libcontainers_unstable.gpg] https://download.opensuse.org/repositories/devel:kubic:libcontainers:unstable/xUbuntu_$(lsb_release -rs)/ /" \
-    | tee /etc/apt/sources.list.d/devel:kubic:libcontainers:unstable.list > /dev/null \
+# Enterprise certificate
+COPY ./ca-certificates/. /usr/local/share/ca-certificates/
+
+RUN update-ca-certificates -f \
     && apt-get update \
-    && apt-get -y install podman slirp4netns \
-    && ln -s /usr/bin/podman /usr/local/bin/docker \
-    && echo "Install Snap" \
-    && apt-get -y install snapd \
-    && echo "Install Credential and secret required packages (Jetbrains Tool required)" \
-    && apt-get -y install libsecret-1-0 gnome-keyring \
-    && echo "Install sudo" \
-    && apt-get -y install sudo \
-    && echo "Install Micromamba -- a replacement of miniconda" \
-    && mkdir -p /opt/micromamba \
-    && apt-get -y install bzip2 \
-    && curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj -C /opt/micromamba/ bin/micromamba \
-    && echo "Install neovim -- a replacement of vi/vim" \
-    && deb=$(curl -w "%{filename_effective}" -LO https://github.com/neovim/neovim/releases/download/v0.8.3/nvim-linux64.deb) \
-    && dpkg -i $deb && rm $deb && unset deb \
-    && ln -s /usr/bin/nvim /usr/local/bin/vim \
-    && ln -s /usr/bin/nvim /usr/local/bin/vi \
-    && apt-get -y install ripgrep \
-    && echo "Other development tools" \
-    && apt-get -y install wget \
+    && echo "Install required/common tool to manage package installation" \
+    && apt-get -y install gpg lsb-release sudo wget curl crudini \
+    && mkdir -p /dev-install-files/
+
+COPY --chmod=777 packages shells /dev-install-files/
+
+RUN echo "Start installing packages/shells..." \
+    && for s in $(find /dev-install-files -name root-install.sh -type f -printf '%h\0%d\0%p\n' | sort -t '\0' -n | awk -F'\0' '{print $3}'); do "$s"; done \
+    && echo "Merge all wsl.conf" \
+    && touch /etc/wsl.conf \
+    && for s in $(find /dev-install-files -type f -name wsl.conf); do bash -c "crudini --merge --output=/etc/wsl.conf /etc/wsl.conf < $s"; done \
+    && echo "Merge all .wslconfig" \
+    && mkdir -p /opt/wsl \
+    && touch /opt/wsl/.wslconfig \
+    && for s in $(find /dev-install-files -type f -name .wslconfig); do bash -c "crudini --merge --output=/opt/wsl/.wslconfig /opt/wsl/.wslconfig < $s"; done \
+    && echo "Merge all .wslgconfig" \
+    && touch /opt/wsl/.wslgconfig \
+    && for s in $(find /dev-install-files -type f -name .wslgconfig); do bash -c "crudini --merge --output=/opt/wsl/.wslgconfig /opt/wsl/.wslgconfig < $s"; done \
     && echo "Clean up installation" \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* /tmp/*
 
-# Enterprise
-COPY ./ca-certificates/. /usr/local/share/ca-certificates/
-RUN update-ca-certificates -f
-
-# Default wsl configurations
-COPY wsl/wsl.conf /etc/wsl.conf
