@@ -25,8 +25,8 @@ if (-not $tarFilePath) {
 
 wsl --import $wslDistroName $wslTargetDir $tarFilePath
 
-wsl -d $wslDistroName bash -c "/dev-install-files/first-launch/initial.sh ${env:username}"
+wsl -d $wslDistroName bash -c "/dev-install-files/initial.sh ${env:username}"
 wsl -t $wslDistroName
 
-wsl -d $wslDistroName bash -c "/dev-install-files/first-launch/setup-user-environment.sh"
+wsl -d $wslDistroName bash -c "/dev-install-files/setup-user-environment.sh"
 wsl -d $wslDistroName
