@@ -1,10 +1,11 @@
 FROM ubuntu:latest
 
 # Enterprise certificate
-COPY ./ca-certificates/. /usr/local/share/ca-certificates/
+COPY ./ca-certificates/*.crt /usr/local/share/ca-certificates/
 
-RUN update-ca-certificates -f \
-    && apt-get update \
+RUN apt-get update \
+    && apt-get install ca-certificates -y \
+    && update-ca-certificates -f \
     && echo "Install required/common tool to manage package installation" \
     && apt-get -y install gpg lsb-release sudo wget curl crudini \
     && mkdir -p /dev-install-files/
