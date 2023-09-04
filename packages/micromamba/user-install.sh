@@ -1,5 +1,5 @@
 #!/bin/bash
-mkdir ~/.conda/envs
+mkdir -p ~/.conda/envs
 
 echo "Initial mamba to current shell"
 export USER_DEFAULT_SHELL=$(basename "$(getent passwd $(whoami) | awk -F: '{print $NF}')")
