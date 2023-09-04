@@ -23,13 +23,10 @@ if (-not $tarFilePath) {
     docker rmi $dockerImageName
 }
 
-New-Item -ItemType Directory -Force -Path $wslTargetDir
-
-compact /c /q /s:$wslTargetDir
-
 wsl --import $wslDistroName $wslTargetDir $tarFilePath
 
-$lowercaseUsername = ${env:username}.ToLower()
-wsl -d $wslDistroName bash -c "utils/first-launch.sh $lowercaseUsername"
+wsl -d $wslDistroName bash -c "/dev-install-files/first-launch/initial.sh ${env:username}"
+wsl -t $wslDistroName
 
-wsl --terminate $wslDistroName
+wsl -d $wslDistroName bash -c "/dev-install-files/first-launch/setup-user-environment.sh"
+wsl -d $wslDistroName
