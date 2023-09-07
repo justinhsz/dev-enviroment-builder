@@ -2,7 +2,7 @@
 
 cat << EOF
 ===================================
-- Zulu JDK
+- Import certificates
     - Create ~/.keystore
     - Import certificates to keystore
 ===================================
