@@ -15,8 +15,11 @@ EOF
 read -p "Do you want to install zim framework and powerlevel10k? (y/n) " yn
 
 if [[ $yn == "y" ]]; then
-  curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh | sudo zsh
+  sudo chsh -s $(which zsh) $(whoami)
+  curl -fsSL https://raw.githubusercontent.com/zimfw/install/master/install.zsh | sudo -u $(whoami) zsh
   echo "zmodule romkatv/powerlevel10k" >> ~/.zimrc
+  # need to reload
+  source ~/.zshrc
   zsh -c "zimfw install"
 else
   echo "Now setup zsh as your default shell"
