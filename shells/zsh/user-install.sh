@@ -25,3 +25,6 @@ else
   echo "Now setup zsh as your default shell"
   sudo chsh -s $(which zsh) $(whoami)
 fi
+
+echo "update ~/.zshrc file"
+cat /dev-install-files/*/rc-file >> ~/.zshrc
